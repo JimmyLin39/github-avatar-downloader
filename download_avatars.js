@@ -25,25 +25,41 @@ function getRepoContributors(repoOwner, repoName, cb) {
 
       let avatarURL = item.avatar_url;
       let username = item.login;
+      //cb(avatarURL,username) ;
       downloadImageByURL(avatarURL, username);
     });
-    //cb(err, body);
-    console.log('Download complete.');
+
+    // cb(err, avatarURL);
   });
 }
 
 function downloadImageByURL(url, filePath) {
-  console.log('url', url)
+  //console.log('url', url)
   request.get(url)
          .on('error', function(err){
           console.log('err');
           throw err;
        })
+         .on('response', function(response){
+          console.log('download...')
+         })
+         .on('end', function(){
+          console.log('Download complete.');
+         })
          .pipe(fs.createWriteStream('./avatars/'+filePath+'.jpg'));
 
 }
 
-getRepoContributors("jquery", "jquery", function(err, result) {
-  console.log("Errors:", err);
-  console.log("Result:", result);
-});
+var repoOwner = process.argv[2];
+var repoName = process.argv[3];
+
+if(!repoOwner){
+  console.log('please enter a repo owner.')
+}else if (!repoName) {
+  console.log('please enter a repo name.')
+}else{
+  getRepoContributors(repoOwner, repoName, function(url, username) {
+  console.log("url:", url);
+  console.log("username:", username);
+  });
+}
